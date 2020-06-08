@@ -2,8 +2,10 @@ package pl.javastart.streamsexercise;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 class PaymentService {
 
@@ -16,23 +18,33 @@ class PaymentService {
     }
 
     List<Payment> findPaymentsSortedByDateDesc() {
-        throw new RuntimeException("Not implemented");
+        return paymentRepository.findAll().stream()
+                .sorted((p1, p2) -> p2.getPaymentDate().compareTo(p1.getPaymentDate()))
+                .collect(Collectors.toList());
     }
 
     List<Payment> findPaymentsForCurrentMonth() {
-        throw new RuntimeException("Not implemented");
+        return paymentRepository.findAll().stream()
+                .filter(payment -> payment.getPaymentDate().getMonth().equals(dateTimeProvider.yearMonthNow().getMonth()))
+                .collect(Collectors.toList());
     }
 
     List<Payment> findPaymentsForGivenMonth(YearMonth yearMonth) {
-        throw new RuntimeException("Not implemented");
+        return paymentRepository.findAll().stream()
+                .filter(paymentDate -> paymentDate.getPaymentDate().getMonth().equals(yearMonth.getMonth()))
+                .collect(Collectors.toList());
     }
 
     List<Payment> findPaymentsForGivenLastDays(int days) {
-        throw new RuntimeException("Not implemented");
+        return paymentRepository.findAll().stream()
+                .filter(paymentDate -> paymentDate.getPaymentDate().isAfter(dateTimeProvider.zonedDateTimeNow().minusDays(days)))
+                .collect(Collectors.toList());
     }
 
     Set<Payment> findPaymentsWithOnePaymentItem() {
-        throw new RuntimeException("Not implemented");
+        return paymentRepository.findAll().stream()
+                .filter(payment -> payment.getPaymentItems().size() == 1)
+                .collect(Collectors.toSet());
     }
 
     Set<String> findProductsSoldInCurrentMonth() {
@@ -48,7 +60,11 @@ class PaymentService {
     }
 
     List<PaymentItem> getPaymentsForUserWithEmail(String userEmail) {
-        throw new RuntimeException("Not implemented");
+        return paymentRepository.findAll().stream()
+                .filter(payment -> payment.getUser().getEmail().equalsIgnoreCase(userEmail))
+                .map(Payment::getPaymentItems)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     Set<Payment> findPaymentsWithValueOver(int value) {
